@@ -9,10 +9,7 @@ import multer from 'multer';
 const app = express();
 dotenv.config();
 app.use(express.json());
-app.use(cors({
-    origin: 'https://buzzstartups.com',
-    methods: 'GET,POST,PUT', // Adjust the allowed methods as needed
-  }));
+app.use(cors());
 app.use(morgan("dev"));
 const upload = multer({ dest: 'uploads/' })
 app.use('/uploads',express.static('uploads'))
