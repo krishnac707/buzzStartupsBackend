@@ -65,4 +65,4 @@ const StartupMultiStepFormSchema = new Schema({
     }
 })
 
-export default mongoose.model("StartupMultiStepForm",StartupMultiStepFormSchema)
+export default mongoose.model("startupCompanies",StartupMultiStepFormSchema)

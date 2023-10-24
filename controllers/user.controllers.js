@@ -37,7 +37,7 @@ export const Login = async (req, res) => {
                 userId: user._id,
                 Role: user.Role
             }
-            const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+            const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '2 days' });
             return res.status(200).json({ success: true, message: "Login Successful", user: userobj, token: token })
         }
         return res.status(404).json({ success: false, message: "please check email or password" })
@@ -50,13 +50,10 @@ export const Login = async (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
     try {
-
         const { token } = req.body;
-        console.log(token,"66");
         if (!token) return res.status(400).json({ success: false, message: "token is required" })
         const decoder = jwt.verify(token, process.env.JWT_SECRET)
         if (!decoder) return res.status(404).json({ success: false, message: "Not a valid token" })
-
         const userid = decoder?.userId
         const user = await UserModal.findById(userid)
         if (!user) return res.status(404).json({ success: false, message: "User not found" })
@@ -68,7 +65,6 @@ export const getCurrentUser = async (req, res) => {
             Role: user?.Role
         }
         return res.status(200).json({ success: true, user: userObj })
-
     } catch (error) {
         return res.status(500).json({ success: false, message: error })
     }

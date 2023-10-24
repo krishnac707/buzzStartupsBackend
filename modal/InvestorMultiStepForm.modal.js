@@ -20,6 +20,9 @@ const InvestorMultiStepFormSchema = new Schema({
         type:String,
         required:true
     },
+    InvestorState:{
+        type:String,
+    },
     InvestorCity:{
         type:String,
         required:true
@@ -64,6 +67,30 @@ const InvestorMultiStepFormSchema = new Schema({
         type:Boolean,
         required:true
     },
+    InvestorAboutMe:{
+        type:String,
+    },
+    InvestorFacebookUrl:{
+        type:String,        
+    },
+    InvestorTwitterUrl:{
+        type:String,
+    },
+    InvestorAddActvities:{
+        type:String,
+    },
+    InvestorEducationBackground:{
+        type:String,
+    },
+    InvestorWorkExperience:{
+        type:String,
+    },
+    InvestorAssociation:{
+        type:String,
+    },
+    InvestorProfileImage:{
+        type:String,
+    },
     userId:{
         type: mongoose.Schema.Types.ObjectId,
         ref:'User'
@@ -71,4 +98,4 @@ const InvestorMultiStepFormSchema = new Schema({
 
 })
 
-export default mongoose.model("InvesterMultiStepForm",InvestorMultiStepFormSchema)
+export default mongoose.model("InvestorCompany",InvestorMultiStepFormSchema)

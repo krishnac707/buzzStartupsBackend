@@ -7,4 +7,3 @@ router.post("/startup-fill-basic-details",StartupBasicDetailForm)
 router.post("/startup-basic-detail",getYourBasicStartupProfile)
 
 export default router;
-
