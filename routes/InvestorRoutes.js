@@ -1,11 +1,11 @@
 import express from "express"
 import { InvestorBasicFormDetail, UpdateInvestor, getYourBasicInvestorProfile } from "../controllers/Investor.controllers.js"
-import multer from 'multer';
+// import multer from 'multer';
 
 const app = express();
 const router = express.Router()
-const upload = multer({ dest: 'uploads/' })
-app.use('/uploads',express.static('uploads'))
+// const upload = multer({ dest: 'uploads/' })
+// app.use('/uploads',express.static('uploads'))
 
 router.post("/investor-fill-basic-detail", InvestorBasicFormDetail)
 router.post("/investor-basic-detail",getYourBasicInvestorProfile)
