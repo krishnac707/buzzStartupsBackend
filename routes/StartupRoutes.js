@@ -1,5 +1,5 @@
 import express from "express"
-import { StartupBasicDetailForm, addStartupFunding, getFundingDetail, getYourBasicStartupProfile, postExistingInvestorDetails, postPitchDeckDoc, postStartupAdvisorDetails, postStartupFinalProjection, postStartupFounderDetails, updateFundingDetails, updateStartupCompanyDetail } from "../controllers/startup.controllers.js";
+import { StartupBasicDetailForm, addStartupFunding, getFundingDetail, getYourBasicStartupProfile, postExistingInvestorDetails, postPitchDeckDoc, postStartupAdvisorDetails, postStartupFinalProjection, postStartupFounderDetails, postStartupTeamSize, updateFundingDetails, updateStartupCompanyDetail } from "../controllers/startup.controllers.js";
 import multer from 'multer';
 import path from 'path';
 
@@ -25,6 +25,7 @@ const uploadDocument = multer({ storage: storageDocument, fileFilter });
 router.post("/startup-pitch-deck-document", uploadDocument.array('pitchFile', 10), postPitchDeckDoc)
 router.post("/startup-final-projection-doc", uploadDocument.array('docFile', 10), postStartupFinalProjection)
 
+router.post("/startup-team-size-detail",postStartupTeamSize)
 router.post("/startup-fill-basic-details", StartupBasicDetailForm)
 router.put("/update-startup-company-data",updateStartupCompanyDetail)
 router.post("/startup-basic-detail", getYourBasicStartupProfile)

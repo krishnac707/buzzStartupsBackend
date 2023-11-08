@@ -7,6 +7,7 @@ import startupAdvisorDetailModal from "../modal/startupAdvisorDetail.modal.js";
 import startupExistingInvestorModal from "../modal/startupExistingInvestor.modal.js";
 import startupPitchDeckModal from "../modal/startupPitchDeck.modal.js";
 import startupFinalProjectionDocModal from "../modal/startupFinalProjectionDoc.modal.js";
+import startupTeamSizeModal from "../modal/startupTeamSize.modal.js";
 
 export const StartupBasicDetailForm = async (req, res) => {
     try {
@@ -204,9 +205,13 @@ export const postStartupFounderDetails = async (req, res) => {
             if (!user.name || !user.dateOfBirth || !user.emailId || !user.linkedinUrl || !user.currentCity || !user.experience || !user.education || !user.phoneNo) {
                 return res.status(404).json({ success: false, message: "Please fill all detail first" })
             }
+            // const phoneValidation = /^[0-9]{10}$/;
+            // if(!phoneValidation.test(user.phoneNo)){
+            //     return res.status(403).json({success:false,message:"Please Enter valid phone number"})
+            // }
         }
         const isFounderPresent = await startupTeamModal.find({ userId: userId })
-        if (!isFounderPresent.length) {
+        if (isFounderPresent.length) {
             const data = new startupTeamModal({
                 userId,
                 founderArray: users
@@ -217,6 +222,44 @@ export const postStartupFounderDetails = async (req, res) => {
         const updateFounder = await startupTeamModal.findOneAndUpdate({ userId: userId }, { $push: { founderArray: { $each: users } } }, { new: true })
         if (updateFounder) {
             return res.status(201).json({ success: true, message: "Founder Added Successfully" })
+        }
+    }
+    catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+    }
+}
+
+export const postStartupTeamSize = async (req, res) => {
+    try {
+        const authorizationHeader = req.headers['authorization'];
+        var token;
+        const users = req.body;
+        if (authorizationHeader) {
+            token = authorizationHeader.split(' ')[1];
+        } else {
+            console.log('Authorization header is missing');
+        }
+        if (!token) return res.status(404).json({ success: false, message: "Token is missing" })
+        const decoder = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
+        const userId = decoder?.userId
+        for (const user of users) {
+            if (!user.teamName || !user.teamSize) {
+                return res.status(404).json({ success: false, message: "Please fill all detail first" })
+            }
+        }
+        const isTeamPresent = await startupTeamSizeModal.find({ userId: userId })
+        if (!isTeamPresent.length) {
+            const data = new startupTeamSizeModal({
+                userId,
+                teamSizeDetails: users
+            })
+            await data.save();
+            return res.status(201).json({ success: true, message: "Team Added Successfully" })
+        }
+        const updateTeam = await startupTeamSizeModal.findOneAndUpdate({ userId: userId }, { $push: { teamSizeDetails: { $each: users } } }, { new: true })
+        if (updateTeam) {
+            return res.status(201).json({ success: true, message: "Team Added Successfully" })
         }
     }
     catch (err) {

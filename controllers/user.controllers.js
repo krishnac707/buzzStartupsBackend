@@ -91,6 +91,7 @@ export const userProfilePictureUpload = async (req, res) => {
 
         const checkInvestorKycUser = await kycDocumentModal.findOne({ userId: userId })
         if (checkInvestorKycUser) {
+            console.log("94");
             const kycDocCheck = await kycDocumentModal.findByIdAndUpdate(checkInvestorKycUser._id, { userProfilePicture: imageUrl }, { new: true })
             if (kycDocCheck) {
                 console.log(kycDocCheck, "93");
@@ -98,6 +99,14 @@ export const userProfilePictureUpload = async (req, res) => {
             }
             return res.status(404).json({ success: false, message: "Incorrect Detail" });
         }
+
+        const addProfile = new kycDocumentModal({
+            userProfilePicture:imageUrl,
+            userId:userId
+        })
+        await addProfile.save();
+        return res.status(201).json({ success: true, message: "Profile added Successful" })
+
     }
     catch (err) {
         return res.status(500).json({ success: false, error: err.message })
