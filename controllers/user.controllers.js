@@ -1,6 +1,7 @@
 import UserModal from "../modal/User.modal.js";
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
+import kycDocumentModal from "../modal/kycDocument.modal.js";
 
 export const Register = async (req, res) => {
     try {
@@ -22,7 +23,7 @@ export const Register = async (req, res) => {
 
 export const Login = async (req, res) => {
     try {
-        
+
         const { Email, Password, Role } = req.body.userData;
         if (!Email || !Password || !Role) return res.status(400).json({ success: false, message: "please fill all details" })
         const user = await UserModal.findOne({ Email: Email });
@@ -37,7 +38,8 @@ export const Login = async (req, res) => {
                 userId: user._id,
                 Role: user.Role
             }
-            const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '2 days' });
+            const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+            // const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '2 days' });
             return res.status(200).json({ success: true, message: "Login Successful", user: userobj, token: token })
         }
         return res.status(404).json({ success: false, message: "please check email or password" })
@@ -67,5 +69,64 @@ export const getCurrentUser = async (req, res) => {
         return res.status(200).json({ success: true, user: userObj })
     } catch (error) {
         return res.status(500).json({ success: false, message: error })
+    }
+}
+
+export const userProfilePictureUpload = async (req, res) => {
+    try {
+        const authorizationHeader = req.headers['authorization'];
+        var token;
+        if (authorizationHeader) {
+            token = authorizationHeader.split(' ')[1];
+        } else {
+            console.log('Authorization header is missing');
+        }
+        console.log(req.file, "83");
+        const imageUrl = req.file.path
+
+        if (!token || !imageUrl) return res.status(404).json({ success: false, message: "All field are mandetory" })
+        const decoder = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
+        const userId = decoder?.userId
+
+        const checkInvestorKycUser = await kycDocumentModal.findOne({ userId: userId })
+        if (checkInvestorKycUser) {
+            const kycDocCheck = await kycDocumentModal.findByIdAndUpdate(checkInvestorKycUser._id, { userProfilePicture: imageUrl }, { new: true })
+            if (kycDocCheck) {
+                console.log(kycDocCheck, "93");
+                return res.status(201).json({ success: true, userProfile: kycDocCheck, message: "Profile added successfully" })
+            }
+            return res.status(404).json({ success: false, message: "Incorrect Detail" });
+        }
+    }
+    catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+
+    }
+}
+
+export const getUserProfileImage = async (req, res) => {
+    try {
+        const authorizationHeader = req.headers['authorization'];
+        var token;
+        if (authorizationHeader) {
+            token = authorizationHeader.split(' ')[1];
+        } else {
+            console.log('Authorization header is missing');
+        }
+
+        if (!token) return res.status(404).json({ success: false, message: "All field are mandetory" })
+        const decoder = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
+        const userId = decoder?.userId
+
+        const checkInvestorKycUser = await kycDocumentModal.findOne({ userId: userId })
+        // console.log(checkInvestorKycUser,"123");
+        if(checkInvestorKycUser){
+            return res.status(200).json({ success: true, userProfilePictureData: checkInvestorKycUser})
+        }
+    }
+    catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
     }
 }

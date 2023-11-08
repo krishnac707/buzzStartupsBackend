@@ -4,10 +4,8 @@ import MarketSearchModal from "../modal/MarketSearch.modal.js";
 
 export const zosMarketAnalysisAi = async (req, res) => {
     try {
-        // const {prompt} = req.body;
         const { prompt, token } = req.body;
         if (!prompt || !token) return res.status(400).json({ success: false, message: "Prompt is missing" })
-        console.log("hello");
 
         const decoder = jwt.verify(token, process.env.JWT_SECRET)
         if (!decoder) {

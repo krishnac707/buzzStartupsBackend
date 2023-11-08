@@ -59,6 +59,33 @@ const StartupMultiStepFormSchema = new Schema({
         type:Boolean,
         required:true
     },
+    startupTagline:{
+        type:String
+    },
+    startupBannerUrl:{
+        type:String
+    },
+    startupSector:{
+        type:String
+    },
+    startupHighlights:{
+        type:String
+    },
+    startupStory:{
+        type:String
+    },
+    startupProblemStatement:{
+        type:String
+    },
+    startupSolution:{
+        type:String
+    },
+    startupProducts:{
+        type:String
+    },
+    startupTract:{
+        type:String
+    },
     userId:{
         type: mongoose.Schema.Types.ObjectId,
         ref:'User'

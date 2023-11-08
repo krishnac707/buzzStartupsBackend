@@ -4,21 +4,25 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from "morgan";
 import routeIndex from './routes/index.js';
-// import multer from 'multer';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 dotenv.config();
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
-// const upload = multer({ dest: 'uploads/' })
-// app.use('/uploads',express.static('uploads'))
+
+
 
 app.get("/", (req, res) => {
     res.send("working");
 })
 
 app.use('/api/v1', routeIndex)
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 mongoose.connect(process.env.MONGO_URL).then(() => {
     console.log("connected to db..");

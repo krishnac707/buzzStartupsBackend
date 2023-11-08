@@ -1,6 +1,7 @@
-import mongoose from "mongoose"
+import mongoose, { Schema } from "mongoose"
 
 const kycDocSchema = new Schema({
+    
     aadharFront : {
         type:String,
     },
@@ -16,6 +17,9 @@ const kycDocSchema = new Schema({
     passportBack:{
         type:String
     },
+    userProfilePicture:{
+        type:String
+    },
     userId:{
         type:mongoose.Types.ObjectId,
         ref:'User'
@@ -23,10 +27,6 @@ const kycDocSchema = new Schema({
     investorCompanyId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'InvestorCompany'
-    },
-    startupCompanyId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'StartupCompany'
     }
 })
 
