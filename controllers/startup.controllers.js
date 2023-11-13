@@ -90,9 +90,11 @@ export const updateStartupCompanyDetail = async (req,res) => {
 export const addStartupFunding = async (req, res) => {
     try {
         const authorizationHeader = req.headers['authorization'];
-        const { currencyType, fundingAsk, valuation, minimumTicketSize, capTableEntry, commitmentSoFar } = req.body.startupFundingData
-        if(!currencyType || !fundingAsk || !valuation || !minimumTicketSize || !capTableEntry || !commitmentSoFar) return res.status(400).json({ success: false, message: "All fields are mandetory..." })
+        console.log(req.body.startupFundingData,"93");
+        const { currencyType, fundingAsk, valuation, minimumTicketSize, commitmentSoFar,capTableEntryFounder,capTableEntryESOP,capTableEntryInvestor } = req.body.startupFundingData
+        if(!currencyType || !fundingAsk || !valuation || !minimumTicketSize || !commitmentSoFar || !capTableEntryFounder || !capTableEntryESOP || !capTableEntryInvestor ) return res.status(400).json({ success: false, message: "All fields are mandetory..." })
         var token;
+        
         if (authorizationHeader) {
             token = authorizationHeader.split(' ')[1];
         } else {
@@ -104,12 +106,15 @@ export const addStartupFunding = async (req, res) => {
         if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
 
         const userId = decoder?.userId
+        console.log(userId,"107");
         const fundAdd = new startupFundingDetailModal({
             currencyType: currencyType,
             fundingAsk: fundingAsk,
             valuation: valuation,
             minimumTicketSize: minimumTicketSize,
-            capTableEntry: capTableEntry,
+            capTableEntryFounder: capTableEntryFounder,
+            capTableEntryESOP:capTableEntryESOP,
+            capTableEntryInvestor:capTableEntryInvestor,
             commitmentSoFar: commitmentSoFar,
             userId: userId
         })
@@ -155,7 +160,6 @@ export const updateFundingDetails = async (req, res) => {
     catch (err) {
         return res.status(500).json({ success: false, error: err.message })
     }
-
 }
 
 export const getFundingDetail = async (req, res) => {
@@ -211,7 +215,7 @@ export const postStartupFounderDetails = async (req, res) => {
             // }
         }
         const isFounderPresent = await startupTeamModal.find({ userId: userId })
-        if (isFounderPresent.length) {
+        if (!isFounderPresent.length) {
             const data = new startupTeamModal({
                 userId,
                 founderArray: users
@@ -481,3 +485,26 @@ export const postStartupFinalProjection = async (req, res) => {
         return res.status(500).json({ success: false, error: err.message })
     }
 }
+
+export const getTeamSizeDetails = async(req,res) => {
+    try{
+        const authorizationHeader = req.headers['authorization'];
+        var token;
+        if (authorizationHeader) {
+            token = authorizationHeader.split(' ')[1];
+        } else {
+            console.log('Authorization header is missing');
+        }
+        const decoder = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
+        const userId = decoder?.userId
+
+        const teamSizeDetails = await startupTeamSizeModal.findOne({userId:userId})
+        return res.status(200).json({success:true,teamSizeDetails:teamSizeDetails})
+    }
+    catch(err){
+        return res.status(500).json({ success: false, error: err.message })
+    }
+}
+
+// export const get

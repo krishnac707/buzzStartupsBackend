@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken';
 import InvestorMultiStepFormModal from '../modal/InvestorMultiStepForm.modal.js';
 import kycDocumentModal from '../modal/kycDocument.modal.js';
+import UserModal from '../modal/User.modal.js';
+import StartupMultiStepFormModal from '../modal/StartupMultiStepForm.modal.js';
+import startupFundingDetailModal from '../modal/startupFundingDetail.modal.js';
+import e from 'express';
 
 export const InvestorBasicFormDetail = async (req, res) => {
     try {
@@ -180,5 +184,84 @@ export const investorPancardDoc = async (req, res) => {
     catch (err) {
         return res.status(500).json({ success: false, error: err.message })
 
+    }
+}
+
+export const getSingleStartupInfo = async (req, res) => {
+    try {
+        const authorizationHeader = req.headers['authorization'];
+        var token;
+        if (authorizationHeader) {
+            token = authorizationHeader.split(' ')[1];
+        } else {
+            console.log('Authorization header is missing');
+        }
+        const decoder = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
+        const userId = decoder?.userId
+
+        const startupCompany = await StartupMultiStepFormModal.findOne({ userId: userId })
+        // const startupProfile = await kycDocumentModal.findOne({userId:userId})
+        const startupFund = await startupFundingDetailModal.findOne({ userId: userId })
+
+        const result = {
+            startupName: startupCompany.StartupName,
+            startupTagline: startupCompany.startupTagline,
+            startupValuation: startupFund.valuation,
+            startupFundingAsk: startupFund.fundingAsk,
+            startupMinimumFunding: startupFund.minimumTicketSize,
+            startupCommetmentSoFar: startupFund.commitmentSoFar,
+            startupSector: startupCompany.StartupMultipleSector,
+            startupStages: startupCompany.StartupStage,
+            startupcapTableEntryFounder: startupFund.capTableEntryFounder,
+            startupCapTableEntryESOP: startupFund.capTableEntryESOP,
+            startupCapTableEntryInvestor: startupFund.capTableEntryInvestor
+        }
+        return res.status(200).json({ success: true, result: result })
+    }
+    catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+    }
+}
+
+export const allStartupOverView = async (req, res) => {
+    try {
+        const authorizationHeader = req.headers['authorization'];
+        var token;
+        if (authorizationHeader) {
+            token = authorizationHeader.split(' ')[1];
+        } else {
+            console.log('Authorization header is missing');
+        }
+        const decoder = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
+        const userId = decoder?.userId
+
+        const startupCompaniesDetail = await StartupMultiStepFormModal.find({})
+        const startupFundingDetail = await startupFundingDetailModal.find({})
+
+        // const resultData = [
+        //     ...startupCompaniesDetail.map((startupData) => ({ startupName:startupData?.StartupName, })),
+        //     ...startupFundingDetail.map((startupData) => ({ startupName:startupData?.StartupName, startupFundingAsk:startupData?.fundingAsk }))
+        // ]
+        const resultData = startupCompaniesDetail.map((startupData) => {
+            // console.log(startupData,"248");
+            const fundingData = startupFundingDetail.find((funding) => {
+                console.log(funding,"250");
+              console.log('startupData.userId:', startupData.userId);
+              console.log('funding.userId:', funding.userId);
+              return funding.userId === startupData.userId;
+            });
+            return {
+              startupName: startupData.StartupName,
+              startupFundingAsk: fundingData ? fundingData.fundingAsk : undefined,
+            };
+
+          });
+
+        console.log(resultData);
+    }
+    catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
     }
 }

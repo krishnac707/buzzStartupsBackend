@@ -17,7 +17,15 @@ const startupFundingSchema = new Schema({
         type: Number,
         required:true
     },
-    capTableEntry:{
+    capTableEntryFounder:{
+        type:Number,
+        required:true
+    },
+    capTableEntryESOP:{
+        type:Number,
+        required:true
+    },
+    capTableEntryInvestor:{
         type:Number,
         required:true
     },
@@ -25,6 +33,7 @@ const startupFundingSchema = new Schema({
         type:Number,
         required:true
     },
+    
     userId:{
         type:mongoose.Types.ObjectId,
         ref:'User'

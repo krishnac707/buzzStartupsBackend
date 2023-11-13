@@ -1,5 +1,5 @@
 import express from "express"
-import { StartupBasicDetailForm, addStartupFunding, getFundingDetail, getYourBasicStartupProfile, postExistingInvestorDetails, postPitchDeckDoc, postStartupAdvisorDetails, postStartupFinalProjection, postStartupFounderDetails, postStartupTeamSize, updateFundingDetails, updateStartupCompanyDetail } from "../controllers/startup.controllers.js";
+import { StartupBasicDetailForm, addStartupFunding, getFundingDetail, getTeamSizeDetails, getYourBasicStartupProfile, postExistingInvestorDetails, postPitchDeckDoc, postStartupAdvisorDetails, postStartupFinalProjection, postStartupFounderDetails, postStartupTeamSize, updateFundingDetails, updateStartupCompanyDetail } from "../controllers/startup.controllers.js";
 import multer from 'multer';
 import path from 'path';
 
@@ -35,5 +35,6 @@ router.get("/get-startup-funding-detail", getFundingDetail)
 router.post("/add-startup-team-data", postStartupFounderDetails)
 router.post("/add-startup-advisor-data", postStartupAdvisorDetails)
 router.post("/add-startup-existing-investor-data", postExistingInvestorDetails)
+router.get("/get-startup-team-size-data",getTeamSizeDetails)
 
 export default router;
