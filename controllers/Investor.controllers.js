@@ -5,6 +5,7 @@ import UserModal from '../modal/User.modal.js';
 import StartupMultiStepFormModal from '../modal/StartupMultiStepForm.modal.js';
 import startupFundingDetailModal from '../modal/startupFundingDetail.modal.js';
 import e from 'express';
+import InterestRequestModal from '../modal/InterestRequest.modal.js';
 
 export const InvestorBasicFormDetail = async (req, res) => {
     try {
@@ -201,8 +202,9 @@ export const getSingleStartupInfo = async (req, res) => {
         const userId = decoder?.userId
 
         const startupCompany = await StartupMultiStepFormModal.findOne({ userId: userId })
+        const startupCompanyId = startupCompany._id
         // const startupProfile = await kycDocumentModal.findOne({userId:userId})
-        const startupFund = await startupFundingDetailModal.findOne({ userId: userId })
+        const startupFund = await startupFundingDetailModal.findOne({ startupCompanyId: startupCompanyId })
 
         const result = {
             startupName: startupCompany.StartupName,
@@ -240,28 +242,169 @@ export const allStartupOverView = async (req, res) => {
         const startupCompaniesDetail = await StartupMultiStepFormModal.find({})
         const startupFundingDetail = await startupFundingDetailModal.find({})
 
-        // const resultData = [
-        //     ...startupCompaniesDetail.map((startupData) => ({ startupName:startupData?.StartupName, })),
-        //     ...startupFundingDetail.map((startupData) => ({ startupName:startupData?.StartupName, startupFundingAsk:startupData?.fundingAsk }))
-        // ]
+        // console.log(startupCompaniesDetail,"245");
+        // console.log(startupFundingDetail,"246");
+
         const resultData = startupCompaniesDetail.map((startupData) => {
-            // console.log(startupData,"248");
-            const fundingData = startupFundingDetail.find((funding) => {
-                console.log(funding,"250");
-              console.log('startupData.userId:', startupData.userId);
-              console.log('funding.userId:', funding.userId);
-              return funding.userId === startupData.userId;
-            });
+            const fundingData = startupFundingDetail.find((funding) => funding.startupCompanyId && funding.startupCompanyId.equals(startupData._id));
             return {
-              startupName: startupData.StartupName,
-              startupFundingAsk: fundingData ? fundingData.fundingAsk : undefined,
+                startupId: startupData._id,
+                startupName: startupData.StartupName,
+                startupTagline: startupData.startupTagline,
+                startupSector: startupData.StartupMultipleSector,
+                startupStages: startupData.StartupStage,
+                startupValuation: fundingData ? fundingData.valuation : undefined,
+                startupFundingAsk: fundingData ? fundingData.fundingAsk : undefined,
+                startupMinimumFunding: fundingData ? fundingData.minimumTicketSize : undefined,
+                startupCommetmentSoFar: fundingData ? fundingData.commitmentSoFar : undefined,
+                startupcapTableEntryFounder: fundingData ? fundingData.capTableEntryFounder : undefined,
+                startupCapTableEntryESOP: fundingData ? fundingData.capTableEntryESOP : undefined,
+                startupCapTableEntryInvestor: fundingData ? fundingData.capTableEntryInvestor : undefined
             };
+        });
 
-          });
-
-        console.log(resultData);
+        const filteredResultData = resultData.filter(entry =>
+            entry.startupFundingAsk !== undefined,
+        );
+        console.log(filteredResultData);
+        return res.status(200).json({ success: true, allStartup: filteredResultData })
     }
     catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+    }
+}
+
+export const addInterestedStartup = async (req, res) => {
+    try {
+        const authorizationHeader = req.headers['authorization'];
+        var token;
+        const startupId = req.body.startupId
+        console.log(startupId,"283");
+        if (authorizationHeader) {
+            token = authorizationHeader.split(' ')[1];
+        } else {
+            console.log('Authorization header is missing');
+        }
+        const decoder = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
+        const userId = decoder?.userId
+        const investorCompany = await InvestorMultiStepFormModal.findOne({ userId: userId })
+        if (!investorCompany) {
+            return res.status(404).json({ success: false, message: 'InvestorCompany not found' });
+        }
+        console.log(investorCompany?.startupCompany, "297");
+        const targetStartupId = startupId.startupId;
+        if (investorCompany.startupCompany.includes(startupId)) {
+            return res.status(400).json({ success: false, message: 'You already shown interest in this startup' });
+        }
+        console.log(investorCompany?.startupCompany, "301");
+        investorCompany?.startupCompany.push(startupId)
+        console.log(investorCompany?.startupCompany, "303");
+        await investorCompany.save();
+
+        const findAdmin = await UserModal.find({ Role: 'Admin' })
+        const newInterestInvestor = await InterestRequestModal.create({
+            investorCompanyId: investorCompany._id,
+            startupCompanyId: targetStartupId,
+            userId: findAdmin[0]._id,
+        });
+        return res.status(200).json({ success: true, investorCompany: investorCompany, message: "Startup added successfully to your portfolio" })
+
+    }
+    catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+    }
+}
+
+export const getInterestedStartup = async (req, res) => {
+    try {
+        const authorizationHeader = req.headers['authorization'];
+        var token;
+        if (authorizationHeader) {
+            token = authorizationHeader.split(' ')[1];
+        } else {
+            console.log('Authorization header is missing');
+        }
+        const decoder = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
+        const userId = decoder?.userId
+
+        const investorCompany = await InvestorMultiStepFormModal.findOne({ userId: userId })
+        if (!investorCompany) {
+            return res.status(404).json({ success: false, message: 'InvestorCompany not found' });
+        }
+
+        const startupId = investorCompany.startupCompany
+        const startupDetails = await Promise.all(startupId.map(async (startupId) => {
+            const singleStartup = await StartupMultiStepFormModal.findById(startupId);
+            if (!singleStartup) {
+                return null;
+            }
+            const fundingData = await startupFundingDetailModal.findOne({ startupCompanyId: startupId });
+            return {
+                startupId: singleStartup._id,
+                startupName: singleStartup.StartupName,
+                startupTagline: singleStartup.startupTagline,
+                startupSector: singleStartup.StartupMultipleSector,
+                startupStages: singleStartup.StartupStage,
+                startupValuation: fundingData ? fundingData.valuation : undefined,
+                startupFundingAsk: fundingData ? fundingData.fundingAsk : undefined,
+                startupMinimumFunding: fundingData ? fundingData.minimumTicketSize : undefined,
+                startupCommetmentSoFar: fundingData ? fundingData.commitmentSoFar : undefined,
+                startupcapTableEntryFounder: fundingData ? fundingData.capTableEntryFounder : undefined,
+                startupCapTableEntryESOP: fundingData ? fundingData.capTableEntryESOP : undefined,
+                startupCapTableEntryInvestor: fundingData ? fundingData.capTableEntryInvestor : undefined
+            };
+        }));
+
+        const filteredStartupDetails = startupDetails.filter((startupDetail) => startupDetail !== null);
+        return res.status(200).json({ success: true, startupDetails: filteredStartupDetails });
+    }
+    catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+    }
+}
+
+export const getSingleStartupInterestedDetail = async (req,res) => {
+    try{
+        const authorizationHeader = req.headers['authorization'];
+        var token;
+        const {startupId} = req.body;
+        if (authorizationHeader) {
+            token = authorizationHeader.split(' ')[1];
+        } else {
+            console.log('Authorization header is missing');
+        }
+        const decoder = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
+
+        const startupCompany = await StartupMultiStepFormModal.findOne({ _id: startupId })
+        const startupFund = await startupFundingDetailModal.findOne({ startupCompanyId: startupId })
+
+        const result = {
+            startupName: startupCompany.StartupName,
+            startupTagline: startupCompany.startupTagline,
+            startupLocation:startupCompany.StartupState,
+            startupWebsite:startupCompany.StartupWebsiteUrl,
+            startupSector: startupCompany.StartupMultipleSector,
+            startupHighlights:startupCompany.startupHighlights,
+            startupStory:startupCompany.startupStory,
+            startupProblemStatement:startupCompany.startupProblemStatement,
+            startupSolution:startupCompany.startupSolution,
+            startupProduct:startupCompany.startupProducts,
+            startupTraction:startupCompany.startupTract,
+
+            startupValuation: startupFund.valuation,
+            startupFundingAsk: startupFund.fundingAsk,
+            startupMinimumFunding: startupFund.minimumTicketSize,
+            startupCommetmentSoFar: startupFund.commitmentSoFar,
+            // startupcapTableEntryFounder: startupFund.capTableEntryFounder,
+            // startupCapTableEntryESOP: startupFund.capTableEntryESOP,
+            // startupCapTableEntryInvestor: startupFund.capTableEntryInvestor
+        }
+        return res.status(200).json({ success: true, result: result })
+    }
+    catch(err){
         return res.status(500).json({ success: false, error: err.message })
     }
 }

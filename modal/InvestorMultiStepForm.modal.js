@@ -94,6 +94,9 @@ const InvestorMultiStepFormSchema = new Schema({
     userId:{
         type: mongoose.Schema.Types.ObjectId,
         ref:'User'
+    },
+    startupCompany:{
+        type:[String]
     }
 
 })

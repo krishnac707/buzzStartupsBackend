@@ -1,5 +1,5 @@
 import express from "express"
-import { InvestorBasicFormDetail, UpdateInvestor, allStartupOverView, getSingleStartupInfo, getYourBasicInvestorProfile, investorKycDocument, investorPancardDoc, investorPassportDoc } from "../controllers/Investor.controllers.js"
+import { InvestorBasicFormDetail, UpdateInvestor, addInterestedStartup, allStartupOverView, getInterestedStartup, getSingleStartupInfo, getSingleStartupInterestedDetail, getYourBasicInvestorProfile, investorKycDocument, investorPancardDoc, investorPassportDoc } from "../controllers/Investor.controllers.js"
 import multer from 'multer';
 import path from 'path';
 
@@ -23,5 +23,8 @@ router.post("/investor-basic-detail", getYourBasicInvestorProfile)
 router.put("/update-investor-data", UpdateInvestor)
 router.get("/get-single-startup-overview",getSingleStartupInfo)
 router.get("/get-all-startup-overview-data",allStartupOverView)
+router.post("/add-interested-startup-detail",addInterestedStartup)
+router.get("/get-interested-startup-detail",getInterestedStartup)
+router.post("/get-single-interested-startup-detail",getSingleStartupInterestedDetail)
 
 export default router;

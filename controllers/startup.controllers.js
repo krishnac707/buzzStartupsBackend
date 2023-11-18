@@ -90,23 +90,24 @@ export const updateStartupCompanyDetail = async (req,res) => {
 export const addStartupFunding = async (req, res) => {
     try {
         const authorizationHeader = req.headers['authorization'];
-        console.log(req.body.startupFundingData,"93");
+        console.log("hello");
+        console.log(req.body.startupFundingData,"95");
         const { currencyType, fundingAsk, valuation, minimumTicketSize, commitmentSoFar,capTableEntryFounder,capTableEntryESOP,capTableEntryInvestor } = req.body.startupFundingData
         if(!currencyType || !fundingAsk || !valuation || !minimumTicketSize || !commitmentSoFar || !capTableEntryFounder || !capTableEntryESOP || !capTableEntryInvestor ) return res.status(400).json({ success: false, message: "All fields are mandetory..." })
         var token;
-        
         if (authorizationHeader) {
             token = authorizationHeader.split(' ')[1];
         } else {
             console.log('Authorization header is missing');
         }
-
         if (!token) return res.status(404).json({ success: false, message: "Token is missing" })
         const decoder = jwt.verify(token, process.env.JWT_SECRET);
         if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
 
         const userId = decoder?.userId
-        console.log(userId,"107");
+        const startupCompanyDetails = await StartupMultiStepFormModal.findOne({userId:userId})
+        const startupCompanyId = startupCompanyDetails._id;
+        console.log(startupCompanyId,"112");
         const fundAdd = new startupFundingDetailModal({
             currencyType: currencyType,
             fundingAsk: fundingAsk,
@@ -116,7 +117,7 @@ export const addStartupFunding = async (req, res) => {
             capTableEntryESOP:capTableEntryESOP,
             capTableEntryInvestor:capTableEntryInvestor,
             commitmentSoFar: commitmentSoFar,
-            userId: userId
+            startupCompanyId: startupCompanyId
         })
 
         await fundAdd.save();
@@ -145,10 +146,10 @@ export const updateFundingDetails = async (req, res) => {
         const decoder = jwt.verify(token, process.env.JWT_SECRET);
         if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
         const userId = decoder?.userId
-        console.log(userId, "115");
+        const startupCompanyDetails = await StartupMultiStepFormModal.findOne({userId:userId})
+        const startupCompanyId = startupCompanyDetails._id;
 
-        const checkStartupFunding = await startupFundingDetailModal.findOne({ userId: userId })
-        console.log(checkStartupFunding, "118");
+        const checkStartupFunding = await startupFundingDetailModal.findOne({ startupCompanyId: startupCompanyId })
         if (checkStartupFunding) {
             const updateStartupFundingData = await startupFundingDetailModal.findByIdAndUpdate(checkStartupFunding._id, startupFundingData, { new: true })
             console.log(updateStartupFundingData, "123");
@@ -166,22 +167,18 @@ export const getFundingDetail = async (req, res) => {
     try {
         const authorizationHeader = req.headers['authorization'];
         var token;
-
         if (authorizationHeader) {
             token = authorizationHeader.split(' ')[1];
         } else {
             console.log('Authorization header is missing');
         }
-
         if (!token) return res.status(404).json({ success: false, message: "Token is missing" })
         const decoder = jwt.verify(token, process.env.JWT_SECRET);
         if (!decoder) return res.status(404).json({ success: false, message: "token not found" });
         const userId = decoder?.userId
-
-        console.log(userId, "146");
-
-        const fundingDetail = await startupFundingDetailModal.findOne({ userId: userId })
-        console.log(fundingDetail, "149");
+        const startupCompanyDetails = await StartupMultiStepFormModal.findOne({userId:userId})
+        const startupCompanyId = startupCompanyDetails._id;
+        const fundingDetail = await startupFundingDetailModal.findOne({ startupCompanyId: startupCompanyId })
         if (fundingDetail) {
             return res.status(200).json({ success: true, fundingDetail: fundingDetail })
         }

@@ -34,9 +34,9 @@ const startupFundingSchema = new Schema({
         required:true
     },
     
-    userId:{
+    startupCompanyId:{
         type:mongoose.Types.ObjectId,
-        ref:'User'
+        ref:'startupCompanies'
     }  
 })
 export default mongoose.model("startupFunding",startupFundingSchema)
