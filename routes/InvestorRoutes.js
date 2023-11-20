@@ -13,7 +13,6 @@ const router = express.Router()
 // });
 
 const storage = multer.memoryStorage();
-
 const upload = multer({ storage: storage });
 
 router.post('/update-kyc-aadharcard-investor-data', upload.fields([{ name: 'aadharFront' }, { name: 'aadharBack' }]), investorKycDocument);
