@@ -10,13 +10,14 @@ const app = express();
 
 const router = express.Router()
 
-const storageProfilePicture = multer.diskStorage({
-    destination: './uploads',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-    },
-});
+// const storageProfilePicture = multer.diskStorage({
+//     destination: './uploads',
+//     filename: function (req, file, cb) {
+//         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//     },
+// });
 
+const storageProfilePicture = multer.memoryStorage();
 const uploadProfilePicture = multer({ storage: storageProfilePicture });
 
 router.put('/update-profile-picture-investor-data', uploadProfilePicture.single('profilePicture'),userProfilePictureUpload);
