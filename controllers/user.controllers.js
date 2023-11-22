@@ -25,6 +25,7 @@ export const Login = async (req, res) => {
     try {
 
         const { Email, Password, Role } = req.body.userData;
+        
         if (!Email || !Password || !Role) return res.status(400).json({ success: false, message: "please fill all details" })
         const user = await UserModal.findOne({ Email: Email });
         if (!user || user?.Role != Role) return res.status(409).json({ success: false, message: "User not found" })

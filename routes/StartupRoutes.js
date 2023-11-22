@@ -1,5 +1,5 @@
 import express from "express"
-import { StartupBasicDetailForm, addStartupFunding, getFundingDetail, getTeamSizeDetails, getYourBasicStartupProfile, postExistingInvestorDetails, postPitchDeckDoc, postStartupAdvisorDetails, postStartupFinalProjection, postStartupFounderDetails, postStartupTeamSize, updateFundingDetails, updateStartupCompanyDetail } from "../controllers/startup.controllers.js";
+import { StartupBasicDetailForm, addStartupFunding, getFundingDetail, getStartupAdvisorDetails, getStartupExistingInvestorDetails, getStartupFounderDetails, getTeamSizeDetails, getYourBasicStartupProfile, postExistingInvestorDetails, postPitchDeckDoc, postStartupAdvisorDetails, postStartupFinalProjection, postStartupFounderDetails, postStartupTeamSize, removeAdvisorDetail, removeStartupExistingInvestorDetail, removeTeamSizeDetail, removeTeamStartupFounderDetail, updateFundingDetails, updateStartupCompanyDetail } from "../controllers/startup.controllers.js";
 import multer from 'multer';
 import path from 'path';
 
@@ -37,5 +37,12 @@ router.post("/add-startup-team-data", postStartupFounderDetails)
 router.post("/add-startup-advisor-data", postStartupAdvisorDetails)
 router.post("/add-startup-existing-investor-data", postExistingInvestorDetails)
 router.get("/get-startup-team-size-data",getTeamSizeDetails)
+router.get("/get-startup-team-founder-detail",getStartupFounderDetails)
+router.get("/get-startup-team-advisor-detail",getStartupAdvisorDetails)
+router.get("/get-startup-team-existing-investor-detail",getStartupExistingInvestorDetails)
+router.delete("/remove-startup-team-size/:id",removeTeamSizeDetail)
+router.delete("/remove-startup-founder-detail/:id",removeTeamStartupFounderDetail)
+router.delete("/remove-startup-advisor-detail/:id",removeAdvisorDetail)
+router.delete("/remove-startup-interest-investor-detail/:id",removeStartupExistingInvestorDetail)
 
 export default router;

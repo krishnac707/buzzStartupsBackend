@@ -33,7 +33,6 @@ const startupFundingSchema = new Schema({
         type:Number,
         required:true
     },
-    
     startupCompanyId:{
         type:mongoose.Types.ObjectId,
         ref:'startupCompanies'

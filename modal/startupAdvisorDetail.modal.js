@@ -9,10 +9,10 @@ export const startupAdvisorSchema = new Schema({
             type:String
         }
     }],
-    userId:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    }
+    startupCompanyId:{
+        type:mongoose.Types.ObjectId,
+        ref:'startupCompanies'
+    } 
 })
 
 export default mongoose.model("startupAdvisor",startupAdvisorSchema)

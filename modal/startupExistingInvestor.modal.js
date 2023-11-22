@@ -9,9 +9,9 @@ export const startupExistingInvestorSchema = new Schema({
             type:String
         }
     }],
-    userId:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+    startupCompanyId:{
+        type:mongoose.Types.ObjectId,
+        ref:'startupCompanies'
     }
 })
 

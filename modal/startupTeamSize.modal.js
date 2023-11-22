@@ -9,9 +9,9 @@ const startupTeamSizeSchema = new Schema({
             type:Number
         }
     }],
-    userId:{
+    startupCompanyId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "startupCompanies"
     }
 
 })

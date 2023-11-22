@@ -44,9 +44,9 @@ const startupFounderSchema = new Schema({
     // startupExistingInvestorLinkedin:{
     //     type:String
     // },   
-    userId: {
+    startupCompanyId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "startupCompanies"
     }
 })
 
